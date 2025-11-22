@@ -3,7 +3,11 @@
 Stub for platformcode.config
 """
 
-# Addon metadata
+# Addon metadata (with double underscore for name mangling)
+__addon_name = "Balandro"
+__addon_version = "1.0.0"
+
+# Also provide without underscore for compatibility
 addon_name = "Balandro"
 addon_version = "1.0.0"
 
@@ -27,4 +31,3 @@ def get_videolibrary_config_path():
 def get_data_path():
     """Stub for data path"""
     return ""
-
