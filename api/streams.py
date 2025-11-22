@@ -32,45 +32,6 @@ PRIORITY_CHANNELS = [
 CHANNEL_TIMEOUT = 5
 MAX_WORKERS = 10
 
-# -*- coding: utf-8 -*-
-from http.server import BaseHTTPRequestHandler
-import json
-import sys
-import os
-import importlib
-import traceback
-from concurrent.futures import ThreadPoolExecutor, TimeoutError
-import time
-
-# Agregar el directorio raíz al path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# Importar platformcode primero
-from core import platformcode
-
-# Lista de channels más populares y confiables (ordenados por prioridad)
-PRIORITY_CHANNELS = [
-    'cuevana3',
-    'pelisplus',
-    'gnula',
-    'hdfull',
-    'cinecalidad',
-    'pelispedia',
-    'pelismart',
-    'repelis',
-    'repelisgo',
-    'cuevana3video',
-    'pelisflix',
-    'seriesflv',
-    'jkanime',
-    'animefenix',
-    'animeflv'
-]
-
-# Timeout por channel (segundos)
-CHANNEL_TIMEOUT = 5
-MAX_WORKERS = 10
-
 class Streams:
     def get_streams(self, media_type, media_id, season=None, episode=None):
         """Main method to get streams"""
