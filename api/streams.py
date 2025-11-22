@@ -119,6 +119,7 @@ class Streams:
         try:
             # Importar el channel dinámicamente
             channel = importlib.import_module(f'channels.{channel_name}')
+            print(f"[{channel_name}] Module loaded successfully")
             
             # Crear item de búsqueda
             from core.item import Item
@@ -130,22 +131,30 @@ class Streams:
             
             # Buscar en el channel
             if not hasattr(channel, 'search'):
+                print(f"[{channel_name}] No search function")
                 return []
             
+            print(f"[{channel_name}] Searching for: {metadata['title']}")
             search_results = channel.search(search_item, metadata['title'])
+            print(f"[{channel_name}] Search returned {len(search_results) if search_results else 0} results")
             
             if not search_results:
+                print(f"[{channel_name}] No search results")
                 return []
             
             # Para películas: obtener enlaces directamente
             if media_type == 'movie':
-                return self.get_movie_streams(channel, search_results[0])
+                print(f"[{channel_name}] Getting movie streams for first result")
+                streams = self.get_movie_streams(channel, search_results[0])
+                print(f"[{channel_name}] Got {len(streams)} streams")
+                return streams
             
             # Para series: encontrar episodio específico
             elif media_type == 'series' and season and episode:
                 return self.get_episode_streams(channel, search_results[0], season, episode)
             
         except Exception as e:
+            print(f"[ERROR] {channel_name}: {str(e)}")
             print(f"[ERROR] {channel_name}: {traceback.format_exc()}")
         
         return []
