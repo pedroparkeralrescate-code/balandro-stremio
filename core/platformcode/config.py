@@ -7,6 +7,11 @@ Stub for platformcode.config
 addon_name = "Balandro"
 addon_version = "1.0.0"
 
+# Exception class for web errors
+class WebErrorException(Exception):
+    """Exception for web errors"""
+    pass
+
 def get_setting(name, default=""):
     """Stub for getting settings"""
     return default
@@ -22,3 +27,4 @@ def get_videolibrary_config_path():
 def get_data_path():
     """Stub for data path"""
     return ""
+
