@@ -124,9 +124,7 @@ class Streams:
             # Crear item de búsqueda
             from core.item import Item
             search_item = Item(
-                channel=channel_name,
-                title=metadata['title'],
-                search_type='movie' if media_type == 'movie' else 'tvshow'
+                channel=channel_name
             )
             
             # Buscar en el channel
@@ -135,6 +133,7 @@ class Streams:
                 return []
             
             print(f"[{channel_name}] Searching for: {metadata['title']}")
+            # La función search en Balandro espera (item, texto)
             search_results = channel.search(search_item, metadata['title'])
             print(f"[{channel_name}] Search returned {len(search_results) if search_results else 0} results")
             
