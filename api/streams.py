@@ -124,7 +124,8 @@ class Streams:
             # Crear item de búsqueda
             from core.item import Item
             search_item = Item(
-                channel=channel_name
+                channel=channel_name,
+                search_type='all'  # Permitir búsqueda de movies y series
             )
             
             # Buscar en el channel
@@ -140,6 +141,8 @@ class Streams:
             if not search_results:
                 print(f"[{channel_name}] No search results")
                 return []
+            
+            print(f"[{channel_name}] First result: {search_results[0]}")
             
             # Para películas: obtener enlaces directamente
             if media_type == 'movie':
