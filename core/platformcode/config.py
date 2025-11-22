@@ -20,9 +20,9 @@ def get_addon_version():
     """Get addon version"""
     return __addon_version
 
-def get_setting(name, default=""):
-    """Stub for getting settings"""
-    return default
+def get_setting(name, *args, **kwargs):
+    """Stub for getting settings - accepts any arguments"""
+    return kwargs.get('default', '')
 
 def set_setting(name, value):
     """Stub for setting settings"""
