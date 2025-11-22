@@ -21,6 +21,14 @@ try:
 except:
     pass
 
-# Exportar componentes principales
-__all__ = ['platformcode']
+# Importar y exportar los módulos core que los channels necesitan
+from . import httptools
+from . import scrapertools
+from . import servertools
+from . import tmdb
+from . import jsontools
+from . import filetools
+from . import item
 
+# Exportar componentes principales
+__all__ = ['platformcode', 'httptools', 'scrapertools', 'servertools', 'tmdb', 'jsontools', 'filetools', 'item']
