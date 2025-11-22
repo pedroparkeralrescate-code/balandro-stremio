@@ -25,7 +25,7 @@ PROXY_CONFIG = {
     ],
 }
 
-def buscar_proxies_automatico(canal, url='https://www.google.com'):
+def buscar_proxies_automatico(canal, url='https://www.bing.com'):
     """
     Busca proxies automaticamente sin interacción del usuario
     Optimizado para entorno serverless con testing por lotes
@@ -40,8 +40,11 @@ def buscar_proxies_automatico(canal, url='https://www.google.com'):
     logger.info('[PROXYTOOLS] Iniciando búsqueda automática de proxies para canal: %s' % canal)
     
     # Intentar primero con proxyscrape (más rápido - API)
-    # Pedimos muchos para tener reserva
-    proxies = _proxyscrape_com(url, '', '', 200)
+    # Pedimos HTTP y HTTPS para tener más opciones (urllib usa HTTP proxies con CONNECT para HTTPS)
+    proxies_http = _proxyscrape_com(url, '', '', 1000, protocol='http')
+    proxies_https = _proxyscrape_com(url, '', '', 1000, protocol='https')
+    
+    proxies = list(set((proxies_http or []) + (proxies_https or [])))
     
     if not proxies or len(proxies) < 10:
         # Fallback: free-proxy-list
@@ -60,8 +63,8 @@ def buscar_proxies_automatico(canal, url='https://www.google.com'):
     
     # Testing por lotes para no gastar tiempo en los primeros si fallan
     selected = []
-    batch_size = 20
-    max_tested = 100  # Límite duro para no estar eternamente
+    batch_size = 50
+    max_tested = 300  # Límite aumentado
     total_tested = 0
     
     while len(selected) < PROXY_CONFIG['MAX_PROXIES_PER_CHANNEL'] and total_tested < max_tested and proxies:
@@ -197,17 +200,21 @@ def _test_single_proxy(proxy, url):
 # PROXY PROVIDERS - Solo los más rápidos
 # ============================================================================
 
-def _proxyscrape_com(url, tipo_proxy, pais_proxy, max_proxies):
+def _proxyscrape_com(url, tipo_proxy, pais_proxy, max_proxies, protocol=None):
     """
     Busca proxies en ProxyScrape.com (API - MUY RÁPIDO)
     API: https://proxyscrape.com/api-documentation
     """
-    logger.info('[PROXYTOOLS] Buscando en proxyscrape.com')
+    logger.info('[PROXYTOOLS] Buscando en proxyscrape.com (Protocolo: %s)' % (protocol or 'auto'))
     
     try:
         # API: https://proxyscrape.com/api-documentation
         url_provider = 'https://api.proxyscrape.com/?request=displayproxies'
-        url_provider += '&proxytype=' + ('https' if url.startswith('https') else 'http')
+        if protocol:
+            url_provider += '&proxytype=' + protocol
+        else:
+            url_provider += '&proxytype=' + ('https' if url.startswith('https') else 'http')
+            
         url_provider += '&ssl=all'
         if tipo_proxy: 
             url_provider += '&anonymity=' + tipo_proxy

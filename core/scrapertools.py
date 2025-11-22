@@ -117,14 +117,14 @@ def unescape(text):
                 pass
         return text  # leave as is
 
-    return re.sub("&#?\w+;", fixup, text)
+    return re.sub(r"&#?\w+;", fixup, text)
 
     # Convierte los codigos html "&ntilde;" y lo reemplaza por "ñ" caracter unicode utf-8
 
 
 def decodeHtmlentities(string):
     string = entitiesfix(string)
-    entity_re = re.compile("&(#?)(\d{1,5}|\w{1,8});")
+    entity_re = re.compile(r"&(#?)(\d{1,5}|\w{1,8});")
 
     def substitute_entity(match):
         ent = match.group(2)
@@ -312,13 +312,13 @@ def slugify(title):
     title = ''.join(c for c in title if c in validchars)
 
     # Sustituye espacios en blanco duplicados y saltos de línea
-    title = re.compile("\s+", re.DOTALL).sub(" ", title)
+    title = re.compile(r"\s+", re.DOTALL).sub(" ", title)
 
     # Sustituye espacios en blanco por guiones
-    title = re.compile("\s", re.DOTALL).sub("-", title.strip())
+    title = re.compile(r"\s", re.DOTALL).sub("-", title.strip())
 
     # Sustituye espacios en blanco duplicados y saltos de línea
-    title = re.compile("\-+", re.DOTALL).sub("-", title)
+    title = re.compile(r"\-+", re.DOTALL).sub("-", title)
 
     # Arregla casos especiales
     if title.startswith("-"):
@@ -411,8 +411,8 @@ def get_season_and_episode(title):
     """
     filename = ""
 
-    patrons = ["(\d+)\s*[x-]\s*(\d+)", "(\d+)\s*×\s*(\d+)", "(?:s|t)(\d+)e(\d+)",
-               "(?:season|temp\w*)\s*(\d+)\s*(?:capitulo|epi|episode\w*)\s*(\d+)"]
+    patrons = [r"(\d+)\s*[x-]\s*(\d+)", r"(\d+)\s*×\s*(\d+)", r"(?:s|t)(\d+)e(\d+)",
+               r"(?:season|temp\w*)\s*(\d+)\s*(?:capitulo|epi|episode\w*)\s*(\d+)"]
 
     for patron in patrons:
         try:

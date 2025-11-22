@@ -550,7 +550,7 @@ def get_cookies_from_headers(headers):
 
     for h in headers:
         if h == 'set-cookie':
-            cks = re.findall('(\w+)=([^;]+)', headers[h], re.DOTALL)
+            cks = re.findall(r'(\w+)=([^;]+)', headers[h], re.DOTALL)
             for ck in cks:
                 if ck[0].lower() not in ['path', 'domain', 'expires']:
                     cookies[ck[0]] = ck[1]
