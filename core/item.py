@@ -16,7 +16,7 @@ if sys.version_info[0] >= 3:
     PY3 = True
     unicode = str
     from urllib.parse import quote, unquote_plus, unquote
-    from html.parser import HTMLParser
+    import html
 else:
     PY2 = True
     from urllib import quote, unquote_plus, unquote
@@ -450,15 +450,20 @@ class Item(object):
         @param value: valor a decodificar
         @type value: str
         """
-        try:
-            unicode_title = unicode(value, "utf8", "ignore")
-            return HTMLParser().unescape(unicode_title).encode("utf8")
-        except:
-            if PY3:
-                if isinstance(value, bytes):
-                    value = value.decode("utf8")
-                value = HTMLParser().unescape(value)
+        if PY3:
+            if isinstance(value, bytes):
+                value = value.decode("utf8")
+            try:
+                value = html.unescape(value)
+            except:
+                pass
             return value
+        else:
+            try:
+                unicode_title = unicode(value, "utf8", "ignore")
+                return HTMLParser().unescape(unicode_title).encode("utf8")
+            except:
+                return value
 
     def toutf8(self, *args):
         """

@@ -17,17 +17,12 @@ from core import platformcode
 # Lista de channels más populares y confiables (ordenados por prioridad)
 PRIORITY_CHANNELS = [
     'cuevana3',
-    'pelisplus',
     'gnula',
     'hdfull',
     'cinecalidad',
     'pelispedia',
     'pelismart',
-    'repelis',
-    'repelisgo',
     'cuevana3video',
-    'pelisflix',
-    'seriesflv',
     'jkanime',
     'animefenix',
     'animeflv'
