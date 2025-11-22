@@ -12,3 +12,11 @@ def dialog_ok(title, msg):
 
 def dialog_yesno(title, msg):
     return True
+
+def itemlist_refresh():
+    """Stub for itemlist refresh"""
+    pass
+
+def render_items(itemlist, parent_item):
+    """Stub for rendering items"""
+    pass

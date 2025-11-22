@@ -7,7 +7,7 @@ Simula el entorno de Balandro para Stremio
 import sys
 
 # Importar platformcode package y registrarlo globalmente
-from . import platformcode
+import platformcode
 
 # Registrar platformcode como módulo global si no está ya
 if 'platformcode' not in sys.modules:
@@ -15,7 +15,7 @@ if 'platformcode' not in sys.modules:
 
 # Registrar xbmcgui para channels que lo importan (como hdfull)
 try:
-    from .platformcode import xbmcgui
+    from platformcode import xbmcgui
     if 'xbmcgui' not in sys.modules:
         sys.modules['xbmcgui'] = xbmcgui
 except:
