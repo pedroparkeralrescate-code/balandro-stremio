@@ -129,7 +129,9 @@ def downloadpage_proxy(canal,
                        url, post=None, headers=None, timeout=None, follow_redirects=True, cookies=True, replace_headers=False,
                        add_referer=False, only_headers=False, bypass_cloudflare=True, count_retries=0, raise_weberror=True, 
                        use_proxy=None, use_cache=False, cache_duration=36000):
-
+    
+    import sys
+    sys.stderr.write(f'[HTTPTOOLS DEBUG] Calling config.get_setting for proxies channel={canal}\n')
     proxies = config.get_setting('proxies', canal, default='').replace(' ', '')
 
     if ';' in proxies: # Si los proxies estan separados por ; orden aleatorio

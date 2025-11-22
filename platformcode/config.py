@@ -33,15 +33,18 @@ DEFAULT_PROXIES = {
 
 def get_setting(key, channel=None, default=None):
     """Get a setting value"""
-    # DEBUG: Print every call for proxies
+    # DEBUG: Aggressive logging
     if key == 'proxies':
-        print(f'[CONFIG DEBUG] get_setting called for key={key}, channel={channel}', flush=True)
+        msg = f'[CONFIG DEBUG] get_setting called for key={key}, channel={channel}'
+        print(msg, flush=True)
+        sys.stderr.write(msg + '\n')
+        sys.stderr.flush()
 
     if channel and key == 'proxies':
         # Buscar en configuración del canal
         if channel in _channel_settings and key in _channel_settings[channel]:
             val = _channel_settings[channel][key]
-            print(f'[CONFIG DEBUG] Found in _channel_settings: {val}', flush=True)
+            sys.stderr.write(f'[CONFIG DEBUG] Found in _channel_settings: {val}\n')
             return val
         
         # Buscar en caché de proxies
@@ -49,13 +52,15 @@ def get_setting(key, channel=None, default=None):
         cache = get_proxy_cache()
         cached_proxies = cache.get(channel)
         if cached_proxies:
-            print(f'[CONFIG DEBUG] Found in cache: {cached_proxies}', flush=True)
+            sys.stderr.write(f'[CONFIG DEBUG] Found in cache: {cached_proxies}\n')
             return cached_proxies
         
         # Si no hay proxies, iniciar búsqueda automática
-        if channel in DEFAULT_PROXIES and DEFAULT_PROXIES[channel] == '':
+        # Normalizar canal a lowercase para checkear DEFAULT_PROXIES
+        channel_lower = channel.lower()
+        if channel_lower in DEFAULT_PROXIES and DEFAULT_PROXIES[channel_lower] == '':
             # Trigger búsqueda automática de proxies
-            print(f'[CONFIG] No hay proxies para {channel}, iniciando búsqueda automática...', flush=True)
+            sys.stderr.write(f'[CONFIG] No hay proxies para {channel}, iniciando búsqueda automática...\n')
             
             try:
                 from core import proxytools
@@ -68,17 +73,17 @@ def get_setting(key, channel=None, default=None):
                         proxies = _channel_settings[channel][key]
                         # Guardar en caché
                         cache.set(channel, proxies)
-                        print(f'[CONFIG DEBUG] Search success, returning: {proxies}', flush=True)
+                        sys.stderr.write(f'[CONFIG DEBUG] Search success, returning: {proxies}\n')
                         return proxies
                 else:
-                    print(f'[CONFIG DEBUG] Search failed', flush=True)
+                    sys.stderr.write(f'[CONFIG DEBUG] Search failed\n')
             except Exception as e:
-                print(f'[CONFIG] Error en búsqueda automática de proxies: {e}', flush=True)
+                sys.stderr.write(f'[CONFIG] Error en búsqueda automática de proxies: {e}\n')
         
         # Retornar proxy por defecto si existe
-        if channel in DEFAULT_PROXIES:
-            print(f'[CONFIG DEBUG] Returning default: {DEFAULT_PROXIES[channel]}', flush=True)
-            return DEFAULT_PROXIES[channel]
+        if channel_lower in DEFAULT_PROXIES:
+            sys.stderr.write(f'[CONFIG DEBUG] Returning default: {DEFAULT_PROXIES[channel_lower]}\n')
+            return DEFAULT_PROXIES[channel_lower]
     
     # Buscar en settings globales
     if key in _settings:
