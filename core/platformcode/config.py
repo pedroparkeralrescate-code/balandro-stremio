@@ -16,6 +16,10 @@ class WebErrorException(Exception):
     """Exception for web errors"""
     pass
 
+def get_addon_version():
+    """Get addon version"""
+    return __addon_version
+
 def get_setting(name, default=""):
     """Stub for getting settings"""
     return default
