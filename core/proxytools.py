@@ -17,18 +17,18 @@ from platformcode import config, logger
 # Configuración optimizada para serverless
 PROXY_CONFIG = {
     'MAX_PROXIES_PER_CHANNEL': 3,      # Solo 3 proxies por canal
-    'PROXY_TEST_TIMEOUT': 3,            # 3 segundos por proxy
-    'SEARCH_TIMEOUT': 10,               # 10 segundos total para búsqueda
-    'DEFAULT_PROVIDERS': [               # Solo los más rápidos
+    'PROXY_TEST_TIMEOUT': 6,            # 6 segundos por proxy (aumentado)
+    'SEARCH_TIMEOUT': 20,               # 20 segundos total para búsqueda (aumentado)
+    'DEFAULT_PROVIDERS': [
         'proxyscrape.com',
         'free-proxy-list',
     ],
 }
 
-def buscar_proxies_automatico(canal, url='https://www.youtube.com/'):
+def buscar_proxies_automatico(canal, url='https://www.google.com'):
     """
     Busca proxies automaticamente sin interacción del usuario
-    Optimizado para entorno serverless
+    Optimizado para entorno serverless con testing por lotes
     
     Args:
         canal (str): Nombre del canal
@@ -40,12 +40,13 @@ def buscar_proxies_automatico(canal, url='https://www.youtube.com/'):
     logger.info('[PROXYTOOLS] Iniciando búsqueda automática de proxies para canal: %s' % canal)
     
     # Intentar primero con proxyscrape (más rápido - API)
-    proxies = _proxyscrape_com(url, '', '', PROXY_CONFIG['MAX_PROXIES_PER_CHANNEL'] * 3)
+    # Pedimos muchos para tener reserva
+    proxies = _proxyscrape_com(url, '', '', 200)
     
-    if not proxies or len(proxies) < 3:
+    if not proxies or len(proxies) < 10:
         # Fallback: free-proxy-list
         logger.info('[PROXYTOOLS] Proxyscrape insuficiente, intentando free-proxy-list')
-        proxies_fallback = _free_proxy_list(url, '', '', PROXY_CONFIG['MAX_PROXIES_PER_CHANNEL'] * 3)
+        proxies_fallback = _free_proxy_list(url, '', '', 100)
         if proxies_fallback:
             proxies = (proxies or []) + proxies_fallback
     
@@ -53,29 +54,44 @@ def buscar_proxies_automatico(canal, url='https://www.youtube.com/'):
         logger.info('[PROXYTOOLS] No se encontraron proxies')
         return False
     
-    # Validar formato y limitar
+    # Validar formato
     proxies = validar_proxies(proxies)
-    proxies = proxies[:PROXY_CONFIG['MAX_PROXIES_PER_CHANNEL'] * 3]  # Max 9 para testear
+    logger.info('[PROXYTOOLS] Total candidatos encontrados: %d' % len(proxies))
     
-    logger.info('[PROXYTOOLS] Encontrados %d proxies, testeando...' % len(proxies))
-    
-    # Testear proxies
-    proxies_info = testear_lista_proxies(url, proxies)
-    
-    # Guardar solo los 3 mejores
+    # Testing por lotes para no gastar tiempo en los primeros si fallan
     selected = []
-    for proxy, info in proxies_info:
-        if info['ok']:
-            selected.append(proxy)
-            if len(selected) >= PROXY_CONFIG['MAX_PROXIES_PER_CHANNEL']:
-                break
+    batch_size = 20
+    max_tested = 100  # Límite duro para no estar eternamente
+    total_tested = 0
+    
+    while len(selected) < PROXY_CONFIG['MAX_PROXIES_PER_CHANNEL'] and total_tested < max_tested and proxies:
+        # Extraer lote
+        batch = proxies[:batch_size]
+        proxies = proxies[batch_size:] # Avanzar lista
+        
+        if not batch:
+            break
+            
+        logger.info('[PROXYTOOLS] Testeando lote de %d proxies (Total probados: %d)...' % (len(batch), total_tested))
+        
+        # Testear lote
+        results = testear_lista_proxies(url, batch)
+        total_tested += len(batch)
+        
+        # Procesar resultados
+        for proxy, info in results:
+            if info['ok']:
+                logger.info('[PROXYTOOLS] Proxy válido encontrado: %s (Tiempo: %.2fs)' % (proxy, info['time']))
+                selected.append(proxy)
+                if len(selected) >= PROXY_CONFIG['MAX_PROXIES_PER_CHANNEL']:
+                    break
     
     if selected:
         config.set_setting('proxies', ', '.join(selected), canal)
         logger.info('[PROXYTOOLS] Proxies guardados para %s: %s' % (canal, ', '.join(selected)))
         return True
     else:
-        logger.info('[PROXYTOOLS] No se encontraron proxies válidos')
+        logger.info('[PROXYTOOLS] No se encontraron proxies válidos tras probar %d candidatos' % total_tested)
         return False
 
 
