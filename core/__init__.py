@@ -30,5 +30,12 @@ from . import jsontools
 from . import filetools
 from . import item
 
+# Add get_info function stub to tmdb if it doesn't exist
+if not hasattr(tmdb, 'get_info'):
+    def get_info(imdb_id, tipo='movie'):
+        """Stub for getting movie/series info from TMDB"""
+        return {}
+    tmdb.get_info = get_info
+
 # Exportar componentes principales
 __all__ = ['platformcode', 'httptools', 'scrapertools', 'servertools', 'tmdb', 'jsontools', 'filetools', 'item']

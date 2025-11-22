@@ -1,23 +1,34 @@
 # -*- coding: utf-8 -*-
-# Stub for xbmcgui module (used by some channels like hdfull)
+"""
+Stub for xbmcgui module
+"""
+
+class ListItem:
+    """Stub for xbmcgui.ListItem"""
+    def __init__(self, label="", label2="", path=""):
+        self.label = label
+        self.label2 = label2
+        self.path = path
+    
+    def setInfo(self, type, infoLabels):
+        pass
+    
+    def setArt(self, values):
+        pass
+    
+    def setProperty(self, key, value):
+        pass
 
 class Dialog:
-    def ok(self, heading, message):
+    """Stub for xbmcgui.Dialog"""
+    def ok(self, heading, line1, line2="", line3=""):
         pass
     
-    def notification(self, heading, message, icon="", time=5000, sound=True):
-        pass
-    
-    def yesno(self, heading, message, nolabel="No", yeslabel="Yes", autoclose=0):
-        return False
-    
-    def select(self, heading, list, autoclose=0, preselect=-1, useDetails=False):
-        return -1
-    
-    def input(self, heading, default="", type=0, option=0, autoclose=0):
-        return ""
+    def yesno(self, heading, line1, line2="", line3=""):
+        return True
 
 class DialogProgress:
+    """Stub for xbmcgui.DialogProgress"""
     def create(self, heading, message=""):
         pass
     
@@ -30,17 +41,13 @@ class DialogProgress:
     def close(self):
         pass
 
-class ListItem:
-    def __init__(self, label="", label2="", path=""):
-        self.label = label
-        self.label2 = label2
-        self.path = path
-    
-    def setInfo(self, type, infoLabels):
+class WindowDialog:
+    """Stub for xbmcgui.WindowDialog"""
+    def __init__(self):
         pass
     
-    def setArt(self, dictionary):
+    def show(self):
         pass
     
-    def setProperty(self, key, value):
+    def close(self):
         pass
