@@ -3,11 +3,9 @@
 Platformcode package - Simulates Kodi platform APIs
 """
 
-# Import modules
-from . import config
-from . import logger
-from . import platformtools
-from . import xbmcgui
-
-# Export to make them accessible via "from platformcode import config"
-__all__ = ['config', 'logger', 'platformtools', 'xbmcgui']
+def __getattr__(name):
+    """Lazy import to avoid circular dependencies"""
+    if name in ['config', 'logger', 'platformtools', 'xbmcgui']:
+        import importlib
+        return importlib.import_module(f'.{name}', __package__)
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
