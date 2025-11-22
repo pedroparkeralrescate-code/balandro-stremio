@@ -142,7 +142,8 @@ class Streams:
                 print(f"[{channel_name}] No search results")
                 return []
             
-            print(f"[{channel_name}] First result: {search_results[0]}")
+            print(f"[{channel_name}] First result URL: {getattr(search_results[0], 'url', 'NO URL')}")
+            print(f"[{channel_name}] First result title: {getattr(search_results[0], 'title', 'NO TITLE')}")
             
             # Para películas: obtener enlaces directamente
             if media_type == 'movie':
