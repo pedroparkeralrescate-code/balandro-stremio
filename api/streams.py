@@ -54,22 +54,24 @@ class Streams:
         return streams
 
     def get_metadata_from_imdb(self, imdb_id):
-        """Obtiene metadata desde TMDB usando el IMDb ID"""
+        """Obtiene metadata desde OMDb API usando el IMDb ID"""
         try:
-            from core import tmdb
+            import requests
+            # Usar OMDb API (gratis, 1000 requests/día)
+            omdb_url = f"http://www.omdbapi.com/?i={imdb_id}&apikey=trilogy"
+            response = requests.get(omdb_url, timeout=5)
             
-            # TMDB puede buscar por IMDb ID
-            info = tmdb.get_info(imdb_id, tipo='movie')
-            
-            if info:
-                return {
-                    'imdb_id': imdb_id,
-                    'title': info.get('title') or info.get('name', ''),
-                    'year': info.get('release_date', '')[:4] if info.get('release_date') else info.get('first_air_date', '')[:4],
-                    'type': 'movie' if 'title' in info else 'tvshow'
-                }
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('Response') == 'True':
+                    return {
+                        'imdb_id': imdb_id,
+                        'title': data.get('Title', imdb_id),
+                        'year': data.get('Year', ''),
+                        'type': 'movie' if data.get('Type') == 'movie' else 'tvshow'
+                    }
         except Exception as e:
-            print(f"[ERROR] No se pudo obtener metadata de TMDB: {e}")
+            print(f"[ERROR] No se pudo obtener metadata de OMDb: {e}")
         
         # Fallback: usar solo el IMDb ID
         return {
