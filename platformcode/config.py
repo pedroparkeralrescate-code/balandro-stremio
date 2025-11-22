@@ -33,12 +33,40 @@ DEFAULT_PROXIES = {
 
 def get_setting(key, channel=None, default=None):
     """Get a setting value"""
-    if channel:
+    if channel and key == 'proxies':
         # Buscar en configuración del canal
         if channel in _channel_settings and key in _channel_settings[channel]:
             return _channel_settings[channel][key]
+        
+        # Buscar en caché de proxies
+        from platformcode.proxy_cache import get_proxy_cache
+        cache = get_proxy_cache()
+        cached_proxies = cache.get(channel)
+        if cached_proxies:
+            return cached_proxies
+        
+        # Si no hay proxies, iniciar búsqueda automática
+        if channel in DEFAULT_PROXIES and DEFAULT_PROXIES[channel] == '':
+            # Trigger búsqueda automática de proxies
+            print(f'[CONFIG] No hay proxies para {channel}, iniciando búsqueda automática...')
+            
+            try:
+                from core import proxytools
+                # Buscar proxies en background (no bloqueante)
+                success = proxytools.buscar_proxies_automatico(channel)
+                
+                if success:
+                    # Devolver los proxies recién encontrados
+                    if channel in _channel_settings and key in _channel_settings[channel]:
+                        proxies = _channel_settings[channel][key]
+                        # Guardar en caché
+                        cache.set(channel, proxies)
+                        return proxies
+            except Exception as e:
+                print(f'[CONFIG] Error en búsqueda automática de proxies: {e}')
+        
         # Retornar proxy por defecto si existe
-        if key == 'proxies' and channel in DEFAULT_PROXIES:
+        if channel in DEFAULT_PROXIES:
             return DEFAULT_PROXIES[channel]
     
     # Buscar en settings globales
@@ -47,6 +75,7 @@ def get_setting(key, channel=None, default=None):
     
     # Variables de entorno como fallback
     return os.environ.get(key, default)
+
 
 def set_setting(key, value, channel=None):
     """Set a setting value"""
