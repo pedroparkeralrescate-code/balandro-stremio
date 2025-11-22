@@ -3,14 +3,17 @@
 Stub for platformcode.logger
 """
 
-def info(message, force=False):
+def info(message="", force=False):
     """Log info message"""
-    print(f"[INFO] {message}")
+    if message:
+        print(f"[INFO] {message}")
 
-def debug(message, force=False):
+def debug(message="", force=False):
     """Log debug message"""
-    print(f"[DEBUG] {message}")
+    if message:
+        print(f"[DEBUG] {message}")
 
-def error(message, force=False):
+def error(message="", force=False):
     """Log error message"""
-    print(f"[ERROR] {message}")
+    if message:
+        print(f"[ERROR] {message}")
