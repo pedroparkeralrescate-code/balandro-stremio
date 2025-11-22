@@ -33,22 +33,29 @@ DEFAULT_PROXIES = {
 
 def get_setting(key, channel=None, default=None):
     """Get a setting value"""
+    # DEBUG: Print every call for proxies
+    if key == 'proxies':
+        print(f'[CONFIG DEBUG] get_setting called for key={key}, channel={channel}', flush=True)
+
     if channel and key == 'proxies':
         # Buscar en configuración del canal
         if channel in _channel_settings and key in _channel_settings[channel]:
-            return _channel_settings[channel][key]
+            val = _channel_settings[channel][key]
+            print(f'[CONFIG DEBUG] Found in _channel_settings: {val}', flush=True)
+            return val
         
         # Buscar en caché de proxies
         from platformcode.proxy_cache import get_proxy_cache
         cache = get_proxy_cache()
         cached_proxies = cache.get(channel)
         if cached_proxies:
+            print(f'[CONFIG DEBUG] Found in cache: {cached_proxies}', flush=True)
             return cached_proxies
         
         # Si no hay proxies, iniciar búsqueda automática
         if channel in DEFAULT_PROXIES and DEFAULT_PROXIES[channel] == '':
             # Trigger búsqueda automática de proxies
-            print(f'[CONFIG] No hay proxies para {channel}, iniciando búsqueda automática...')
+            print(f'[CONFIG] No hay proxies para {channel}, iniciando búsqueda automática...', flush=True)
             
             try:
                 from core import proxytools
@@ -61,12 +68,16 @@ def get_setting(key, channel=None, default=None):
                         proxies = _channel_settings[channel][key]
                         # Guardar en caché
                         cache.set(channel, proxies)
+                        print(f'[CONFIG DEBUG] Search success, returning: {proxies}', flush=True)
                         return proxies
+                else:
+                    print(f'[CONFIG DEBUG] Search failed', flush=True)
             except Exception as e:
-                print(f'[CONFIG] Error en búsqueda automática de proxies: {e}')
+                print(f'[CONFIG] Error en búsqueda automática de proxies: {e}', flush=True)
         
         # Retornar proxy por defecto si existe
         if channel in DEFAULT_PROXIES:
+            print(f'[CONFIG DEBUG] Returning default: {DEFAULT_PROXIES[channel]}', flush=True)
             return DEFAULT_PROXIES[channel]
     
     # Buscar en settings globales
