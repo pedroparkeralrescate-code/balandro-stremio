@@ -110,6 +110,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi import Request
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    print(f"\n🌍 RECEIVING REQUEST: {request.method} {request.url}")
+    response = await call_next(request)
+    print(f"🌍 RESPONSE STATUS: {response.status_code}")
+    return response
+
 # ============================================================================
 # Configuración del Addon
 # ============================================================================

@@ -451,6 +451,7 @@ def search_content(query: str, content_type: str = 'movie', channel_name: str = 
                 
                 # Ejecutar búsqueda
                 results = channel.search(search_item, query)
+                print(f"    ℹ [{channel_name}] Búsqueda '{query}' devolvió {len(results)} resultados")
                 
                 # Convertir a metas y añadir info de episodio
                 for item in results:
