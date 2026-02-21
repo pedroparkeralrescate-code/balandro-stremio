@@ -416,7 +416,8 @@ def resolve_video_urls(item) -> List[Dict[str, Any]]:
 # Búsqueda Global
 # ============================================================================
 
-def search_content(query: str, content_type: str = 'movie', channel_name: str = None) -> List[Dict[str, Any]]:
+def search_content(query: str, content_type: str = 'movie', channel_name: str = None, 
+                   season: str = None, episode: str = None) -> List[Dict[str, Any]]:
     """
     Realiza búsqueda en Balandro
     
@@ -424,6 +425,8 @@ def search_content(query: str, content_type: str = 'movie', channel_name: str = 
         query: Término de búsqueda
         content_type: Tipo de contenido ('movie' o 'series')
         channel_name: Canal específico o None para búsqueda global
+        season: Número de temporada (opcional)
+        episode: Número de episodio (opcional)
     
     Returns:
         list: Lista de metas de Stremio
@@ -449,8 +452,11 @@ def search_content(query: str, content_type: str = 'movie', channel_name: str = 
                 # Ejecutar búsqueda
                 results = channel.search(search_item, query)
                 
-                # Convertir a metas
+                # Convertir a metas y añadir info de episodio
                 for item in results:
+                    if season and episode:
+                        item.contentSeason = season
+                        item.contentEpisode = episode
                     meta = item_to_meta(item)
                     metas.append(meta)
         
@@ -476,6 +482,9 @@ def search_content(query: str, content_type: str = 'movie', channel_name: str = 
                         results = channel.search(search_item, query)
                         
                         for item in results:
+                            if season and episode:
+                                item.contentSeason = season
+                                item.contentEpisode = episode
                             meta = item_to_meta(item)
                             metas.append(meta)
                             

@@ -361,15 +361,33 @@ async def get_streams(type: str, id: str):
     streams = []
     
     try:
-        # Si es ID de TMDb, buscar en todos los canales
-        if id.startswith('tmdb:'):
-            print(f"🎬 Búsqueda TMDb ID: {id} ({type})")
+        # Si es ID de TMDb o IMDb (ej. tt1234567 o tt1234567:1:1), buscar en todos los canales
+        if id.startswith('tmdb:') or id.startswith('tt'):
+            from tmdb_client import tmdb_client
             
-            # Extraer TMDb ID
-            tmdb_id = id.split(':')[1]
+            if id.startswith('tmdb:'):
+                print(f"🎬 Búsqueda TMDb ID: {id} ({type})")
+                # Extraer TMDb ID
+                tmdb_id = id.split(':')[1]
+            else:
+                # Es un ID de IMDb de Stremio
+                print(f"🎬 Búsqueda IMDb ID: {id} ({type})")
+                imdb_parts = id.split(':')
+                imdb_id_base = imdb_parts[0]  # strip :season:episode if present
+                
+                # Extraer season/episode si es serie
+                if type == 'series' and len(imdb_parts) >= 3:
+                    season = imdb_parts[1]
+                    episode = imdb_parts[2]
+                
+                tmdb_id = tmdb_client.get_tmdb_id_from_imdb(imdb_id_base)
+                
+                if not tmdb_id:
+                    print(f"❌ No se pudo resolver IMDb ID {imdb_id_base} a TMDb ID")
+                    return JSONResponse(content={'streams': []})
+                print(f"  ✓ Resuelto a TMDb ID: {tmdb_id}")
             
             # Obtener metadata de TMDb
-            from tmdb_client import tmdb_client
             
             if type == 'movie':
                 tmdb_data = tmdb_client.get_movie_details(tmdb_id)
@@ -410,7 +428,9 @@ async def get_streams(type: str, id: str):
                             addon.search_content,
                             title,  # Título español
                             type,
-                            channel_name
+                            channel_name,
+                            season=season if 'season' in locals() else None,
+                            episode=episode if 'episode' in locals() else None
                         )
                         
                         # SI NO ENCUENTRA Y HAY TÍTULO ORIGINAL DIFERENTE, BUSCAR CON ÉL
@@ -420,7 +440,9 @@ async def get_streams(type: str, id: str):
                                 addon.search_content,
                                 original_title,  # Título original (inglés)
                                 type,
-                                channel_name
+                                channel_name,
+                                season=season if 'season' in locals() else None,
+                                episode=episode if 'episode' in locals() else None
                             )
                         
                         if results:

@@ -113,6 +113,22 @@ class TMDbClient:
     def get_tv_details(self, tmdb_id: int) -> Optional[Dict]:
         """Obtiene detalles completos de una serie"""
         return self._make_request(f'/tv/{tmdb_id}')
+        
+    def get_tmdb_id_from_imdb(self, imdb_id: str) -> Optional[int]:
+        """Obtiene el TMDB ID correspondiente a un IMDb ID"""
+        data = self._make_request(f'/find/{imdb_id}', params={'external_source': 'imdb_id'})
+        
+        # Primero busca en películas
+        movie_results = data.get('movie_results', [])
+        if movie_results:
+            return movie_results[0].get('id')
+            
+        # Luego en series
+        tv_results = data.get('tv_results', [])
+        if tv_results:
+            return tv_results[0].get('id')
+            
+        return None
     
     def get_poster_url(self, poster_path: str, size: str = 'w500') -> str:
         """
