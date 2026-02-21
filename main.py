@@ -178,7 +178,7 @@ async def get_manifest():
         ],
         'types': ['movie', 'series'],
         'catalogs': catalogs,
-        'idPrefixes': ['tmdb:', 'balandro:'],  # Soportar TMDb y custom IDs
+        'idPrefixes': ['tmdb:', 'balandro:', 'tt'],  # Soportar TMDb, custom IDs, y standard IMDb IDs
         'behaviorHints': {
             'configurable': False,
             'configurationRequired': False
@@ -191,10 +191,12 @@ async def get_manifest():
 # ============================================================================
 # Endpoint: Catalog
 # ============================================================================
+@app.get("/catalog/{type}/{id}/{extra}.json")
 @app.get("/catalog/{type}/{id}.json")
 async def get_catalog(
     type: str,
     id: str,
+    extra: Optional[str] = None,
     search: Optional[str] = Query(None, alias='search')
 ):
     """
@@ -203,10 +205,16 @@ async def get_catalog(
     Args:
         type: 'movie' o 'series'
         id: ID del catálogo (ej: 'cinecalidad-movies')
-        search: Término de búsqueda opcional
+        extra: Parámetro extra de Stremio (ej: 'search=Interstellar')
+        search: Término de búsqueda (por query params, fallback)
     """
     
     metas = []
+    
+    # Extraer search del path de Stremio (ej: search=Interstellar)
+    if extra and extra.startswith('search='):
+        from urllib.parse import unquote
+        search = unquote(extra.split('=', 1)[1])
     
     try:
         # Parsear ID del catálogo (formato: "channel-type")
