@@ -1,0 +1,32 @@
+# Archivos de datos temporales
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Carpetas de entorno virtual
+venv/
+env/
+ENV/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Datos de Balandro
+data/
+temp/
+cookies.dat
+
+# OS
+.DS_Store
+Thumbs.db
