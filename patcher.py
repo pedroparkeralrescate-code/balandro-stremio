@@ -14,9 +14,19 @@ def apply_patches():
     para usar cloudscraper en lugar de urllib y evitar bloqueos de Cloudflare
     """
     
-    # Importar httptools DESPUÉS de que los mocks estén instalados
+    import os
+    import sys
+    
+    # Asegurar que balandro_src esté en el path temporalmente si no lo está
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    src_dir = os.path.join(base_dir, 'balandro_src')
+    if src_dir not in sys.path:
+        sys.path.insert(0, src_dir)
+        
+    # Importar httptools EXACTAMENTE de la misma forma que los canales lo importan
+    # para no crear dos instancias del módulo en memoria (core.httptools vs balandro_src.core.httptools)
     try:
-        from balandro_src.core import httptools
+        from core import httptools
     except ImportError as e:
         print(f"⚠ Error importando httptools: {e}")
         return
@@ -92,7 +102,7 @@ def apply_patches():
                 class HeadersResponse:
                     def __init__(self, headers):
                         self.headers = dict(headers)
-                        self.data = b''
+                        self.data = ''
                 
                 return HeadersResponse(response.headers)
             
@@ -109,11 +119,14 @@ def apply_patches():
             # Crear objeto de respuesta compatible con httptools
             class CompatResponse:
                 def __init__(self, response):
-                    self.data = response.content
+                    # En Python 3, httptools devuelve str, no bytes.
+                    # Usamos response.text en lugar de response.content
+                    self.data = response.text
                     self.headers = dict(response.headers)
                     self.code = response.status_code
                     self.url = response.url
-            
+                    
+            print(f"🌍 [PATCHER] URL: {url} | Status: {response.status_code} | Bytes: {len(response.content)}")
             return CompatResponse(response)
             
         except Exception as e:
@@ -122,7 +135,7 @@ def apply_patches():
             # Si raise_weberror está deshabilitado, retornar respuesta vacía
             if not raise_weberror:
                 class EmptyResponse:
-                    data = b''
+                    data = ''
                     headers = {}
                     code = 0
                     url = url

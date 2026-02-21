@@ -317,7 +317,15 @@ async def get_meta(type: str, id: str):
     """
     
     try:
-        # Deserializar item
+        # Si es un ID de IMDb o TMDb, no tenemos metadatos propios serializados,
+        # dejamos que Stremio use Cinemeta u otros addons de metadatos.
+        if id.startswith('tt') or id.startswith('tmdb:'):
+            return JSONResponse(
+                content={'meta': None},
+                status_code=404
+            )
+            
+        # Deserializar item de Balandro
         item = addon.deserialize_item(id)
         
         if not item:

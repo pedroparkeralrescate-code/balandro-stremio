@@ -160,7 +160,7 @@ def list_all(item):
         if not url or not title:
             continue
 
-        title = scrapertools.decodeHtml(title).strip()
+        title = scrapertools.htmlclean(title).strip()
 
         thumb = scrapertools.find_single_match(match, r'src="(.*?)"')
 
